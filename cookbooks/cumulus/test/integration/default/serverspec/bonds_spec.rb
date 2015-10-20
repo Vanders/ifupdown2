@@ -9,13 +9,13 @@ intf_dir = File.join('', 'etc', 'network', 'interfaces.d')
 describe file("#{intf_dir}/bond0") do
   it { should be_file }
   its(:content) { should match(/iface bond0/) }
-  its(:content) { should match(/bond-slaves glob swp1-2 swp4/) }
+  its(:content) { should match(/bond-slaves glob swp11-12 swp14/) }
 end
 
 describe file("#{intf_dir}/bond1") do
   it { should be_file }
   its(:content) { should match(/iface bond1 inet static/) }
-  its(:content) { should match(/bond-slaves glob swp5-6/) }
+  its(:content) { should match(/bond-slaves glob swp15-16/) }
   its(:content) { should match(/mtu 9000/) }
   its(:content) { should match(/bond-miimon 99/) }
   its(:content) { should match(/bond-lacp-rate 9/) }
@@ -34,4 +34,22 @@ describe file("#{intf_dir}/bond1") do
   its(:content) { should match(/mstpctl-portnetwork yes/) }
   its(:content) { should match(/mstpctl-portadminedge yes/) }
   its(:content) { should match(/mstpctl-bpduguard yes/) }
+end
+
+describe file("#{intf_dir}/bond3") do
+  it { should be_file }
+  its(:content) { should match(/iface bond3/) }
+  its(:content) { should match(/bond-slaves glob swp17-18/) }
+  its(:content) { should match(/address 192.168.50.1/) }
+end
+
+describe file("#{intf_dir}/bond4") do
+  it { should be_file }
+  its(:content) { should match(/iface bond4/) }
+  its(:content) { should match(/bond-slaves glob swp19-20/) }
+  its(:content) { should match(/address 192.168.50.2/) }
+  its(:content) { should match(/address 192.168.50.3/) }
+  its(:content) { should match(/address 192.168.50.4/) }
+  its(:content) { should match(/address 2001:db8:abcd::a/) }
+  its(:content) { should match(/address 2001:db8:5678::b/) }
 end

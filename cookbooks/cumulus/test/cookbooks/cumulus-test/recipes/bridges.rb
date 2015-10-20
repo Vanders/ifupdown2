@@ -7,14 +7,16 @@
 # All rights reserved - Do Not Redistribute
 #
 
+# swp31-50
+
 # Classic bridge driver with defaults
 cumulus_bridge 'br0' do
-  ports ['swp9', 'swp10-11', 'swp12']
+  ports ['swp31', 'swp32-33', 'swp34']
 end
 
 # Classic bridge driver over-ride all defaults
 cumulus_bridge 'br1' do
-  ports ['swp13-14']
+  ports ['swp35-36']
   ipv4 ['10.0.0.1/24', '192.168.1.0/16']
   ipv6 ['2001:db8:abcd::/48']
   alias_name 'classic bridge number 1'
@@ -26,13 +28,13 @@ end
 
 # New bridge driver with defaults
 cumulus_bridge 'bridge2' do
-  ports ['swp15-16']
+  ports ['swp37-38']
   vlan_aware true 
 end
 
 # New bridge driver over-ride all defaults
 cumulus_bridge 'bridge3' do
-  ports ['swp17-18']
+  ports ['swp39-40']
   vlan_aware true
   vids ['1-4094']
   pvid 1
@@ -43,4 +45,16 @@ cumulus_bridge 'bridge3' do
   stp false
   mstpctl_treeprio 4096
   virtual_mac 'aa:bb:cc:dd:ee:ff'
+end
+
+# Single & multiple IPv4 & IPv6 addresses
+cumulus_bridge 'br4' do
+  ports ['swp41']
+  ipv4 ['192.168.150.1']
+end
+
+cumulus_bridge 'br5' do
+  ports ['swp42']
+  ipv4 ['192.168.150.2','192.168.150.3','192.168.150.4']
+  ipv6 ['2001:db8:1234::e','2001:db8:1234::f']
 end
