@@ -1,6 +1,6 @@
 #
-# Cookbook Name:: cumulus
-# Recipe:: default
+# Cookbook Name:: ifupdown2
+# Recipe:: default 
 #
 # Copyright 2015, Cumulus Networks
 #
@@ -16,6 +16,35 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+service 'networking' do
+  supports :status => true, :restart => true, :reload => true
+  action :nothing
+end
 
-include_recipe 'cumulus::switchd'
-include_recipe 'cumulus::interfaces'
+# Create the configuration fragments directory
+location = node['ifupdown2']['interfaces']['dir']
+
+directory location do
+  owner 'root'
+  group 'root'
+  action :create
+end
+
+# Copy the configuration for eth0 & lo interfaces into fragments
+%w( eth0 lo ).each do |intf|
+  config = ::File.join(location, intf)
+  execute "#{intf} config" do
+    command "ifquery #{intf} > #{config}"
+    not_if { ::File.exists?(config) }
+    notifies :reload, 'service[networking]'
+  end
+end
+
+# Replace interfaces file with one that uses the fragments
+file '/etc/network/interfaces' do
+  owner 'root'
+  group 'root'
+  mode '0644'
+  content "# This file is managed by Chef\nsource #{::File.join(location, '*')}"
+  notifies :reload, 'service[networking]'
+end

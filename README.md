@@ -25,97 +25,16 @@ Usage
 -----
 ### Recipes
 -----
-#### cumulus::switchd
-
-Provides a Chef service resource for the Cumulus Networks switchd daemon.
-
-On its own this recipe does nothing, but can be used with the Cumulus resource providers to restart switchd when the systemc configuration changes.
-
-#### cumulus::interfaces
+#### ifupdown2::default
 
 Provides a Chef service resource for the networking service, and configures the system for network interfaces configuration fragments.
 
-By default the recipe creates the fragments directory specifed in `node['cumulus']['interfaces']['dir']` attribute, then uses `ifquery` to extract the current configuration for the `eth0` and `lo` interfaces. The current `/etc/network/interfaces` file is then over-written with one that uses configuration fragments.
+By default the recipe creates the fragments directory specifed in `node['ifupdown2']['interfaces']['dir']` attribute, then uses `ifquery` to extract the current configuration for the `eth0` and `lo` interfaces. The current `/etc/network/interfaces` file is then over-written with one that uses configuration fragments.
 
 This recipe is intended to be used with the `cumulus_interfaces_policy` and `cumulus_interface`, `cumulus_bridge` & `cumulus_bond` providers to manage your network interfaces. Used alone it will over-write any existing configuration in the `/etc/network/interfaces` file.
 
-#### cumulus::default
-
-Includes both the `interfaces` & `switchd` recipes. 
-Just include `cumulus` in your node's `run_list`:
-
-```json
-{
-  "name":"my_node",
-  "run_list": [
-    "recipe[cumulus]"
-  ]
-}
-```
-
 ### Definitions
 ----
-#### cumulus_ports
-
-Configure the switch ports attributes.
-
-##### Parameters:
-
-* `name` - Name for the resource. This is not directly used by the provider.
-* `speed_10g` - Array of ports to be configured for 10GbE.
-* `speed_40g ` - Array of ports to be configured for 40GbE.
-* `speed_40_div_4` - Array of ports to be configured for 40GbE split to 4 x 10GbE.
-* `speed_4_by_10g` - Array of ports to be configured for 10GbE to be aggregated into 1 x 40GbE.
-
-##### Examples:
-
-Configure `swp5` through `swp48` as 10GbE ports, `swp49` & `swp51` through `swp52` as 40GbE ports, `swp1` through `swp4` as 4 x 10GbE ports and `swp50` as 1 x 40GbE aggregate ports.
-
-```ruby
-cumulus_ports 'speeds' do
-  speed_10g ['swp5-48']
-  speed_40g ['swp49','swp51-52']
-  speed_40g_div_4 ['swp1-4']
-  speed_4_by_10g ['swp50']
-  notifies :restart, "service[switchd]"
-end
-```
-
-#### cumulus_license
-
-Installs a Cumulus Linux license file on a Cumulus Linux switch.
-
-If a license is already installed the provider will check that it has expired before replacing it. You can over-ride this behaviour with the `force` parameter.
-
-The provider uses the `cl-license` command to validate and install the license file.
-
-##### Parameters:
-
-* `name` - Name for the resource. This is not directly used by the provider.
-* `source` - URL to the license file to be installed.
-* `force` - If `true`, skip the license expiration check and install the new license regardless of any current license. Default is `false`.
-
-##### Examples:
-
-Install a license file if one is not already installed:
-
-```ruby
-cumulus_license 'example' do
-  source 'http://example.com/cumulus.lic'
-  notifies :restart, "service[switchd]"
-end
-```
-
-Install a license file, over-writting any existing license:
-
-```ruby
-cumulus_license 'example' do
-  source 'http://example.com/cumulus.lic'
-  force true
-  notifies :restart, "service[switchd]"
-end
-```
-
 #### cumulus_interface_policy
 
 Manage the interface configuration snippets. The provided list of interfaces is compared to the contents of the configuration directory. Any configuration files which exist on disk but are not in the list of interfaces are deleted. This allows you to ensure that no unmanaged interface configurations are installed.
@@ -317,7 +236,7 @@ end
 ----
 #### Util
 
-The Cumulus::Util library is intended for use internally by the LWRPs. It is not intended for direct use by users, although the functions are fully documented. This library and the functions are subject to change at any time, with no notice.
+The Ifupdown2::Util library is intended for use internally by the LWRPs. It is not intended for direct use by users, although the functions are fully documented. This library and the functions are subject to change at any time, with no notice.
 
 Contributing
 ------------
@@ -337,16 +256,3 @@ License and Authors
 Recipes are licensed under the Apache License, Version 2.0
 
 All others are licensed under the GNU General Public License, Version 2.0
-
----
-
-![Cumulus icon](http://cumulusnetworks.com/static/cumulus/img/logo_2014.png)
-
-### Cumulus Linux
-
-Cumulus Linux is a software distribution that runs on top of industry standard
-networking hardware. It enables the latest Linux applications and automation
-tools on networking gear while delivering new levels of innovation and
-ﬂexibility to the data center.
-
-For further details please see: [cumulusnetworks.com](http://www.cumulusnetworks.com)
